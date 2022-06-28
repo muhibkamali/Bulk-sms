@@ -21,13 +21,12 @@ exports.UserPasswordValidation = (data) => {
 //profile
 exports.UserProfileValidation = (data) => {
   const schema = Joi.object({
-      id:Joi.number(),
+    id: Joi.number(),
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
     email: Joi.string().required(),
     phone: Joi.string().required(),
-    image:Joi.string()
- 
+    image: Joi.string(),
   });
   return schema.validate(data);
 };

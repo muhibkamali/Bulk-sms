@@ -1,7 +1,7 @@
 const userServices = require("../services/user.services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
-const validationSchema = require("../helper/validation_schema"); 
+const validationSchema = require("../helper/validation_schema");
 const res = require("express/lib/response");
 exports.UserGet = async (req, res) => {
   try {
@@ -22,11 +22,10 @@ exports.UserGet = async (req, res) => {
 
 exports.UserLogin = async (req, res) => {
   try {
-   
     const body = req.body;
-    
+
     const user = await userServices.userAuth(body);
-  
+
     if (!user) {
       return res.json({
         status: false,
@@ -63,62 +62,58 @@ exports.UserLogin = async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-        success: false,
+      success: false,
       msg: "SomeThing went wrong",
       data: [],
     });
   }
 };
 
-exports.UpdateUserProfile = async(req,res) => {
-    try{
-      
-        const body= req.body;
-        // console.log(req.file);return false;  
-        body.image= req.file.filename
-    
- 
-        body.id=req.user.correctPassword.id
+exports.UpdateUserProfile = async (req, res) => {
+  try {
+    const body = req.body;
+    // console.log(req.file);return false;
+    body.image = req.file.filename;
 
-       
-        const { error } = validationSchema.UserProfileValidation(req.body );
-    
-        if (error) {
-          return res
-            .status(200)
-            .send({ status: 200, success: false, msg: error.details[0].message });
-        }
-        const result=await userServices.UpdateProfile(body)
+    body.id = req.user.correctPassword.id;
 
-        if(result.affectedRows==1){
-            res.status(200).send({
-                success: true,
-                msg: "Profile Successfully Updated",
-                data: body,
-            })
-        }else{
-            res.status(200).send({
-                success: true,
-                msg: "Record Not found",
-                data: [],
-            })
-        }
+    const { error } = validationSchema.UserProfileValidation(req.body);
 
-    }catch(e){
-        console.log(e)
-        res.status(500).send({
-            success: false,
-            msg: "SomeThing went wrong",
-            data: [],
-        })
+    if (error) {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: error.details[0].message });
     }
+    const result = await userServices.UpdateProfile(body);
+
+    if (result.affectedRows == 1) {
+      res.status(200).send({
+        success: true,
+        msg: "Profile Successfully Updated",
+        data: body,
+      });
+    } else {
+      res.status(200).send({
+        success: true,
+        msg: "Record Not found",
+        data: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({
+      success: false,
+      msg: "SomeThing went wrong",
+      data: [],
+    });
+  }
 };
 
 //user change password
 exports.UserChangePassword = async (req, res) => {
   try {
     const { error } = validationSchema.UserPasswordValidation(req.body);
-    
+
     if (error) {
       return res
         .status(200)
@@ -160,7 +155,7 @@ exports.UserRegistration = async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(500).json({
-        success: false,
+      success: false,
       msg: "SomeThing went wrong",
       data: [],
     });
