@@ -1,12 +1,7 @@
-const { reject } = require("bcrypt/promises");
 const sql = require("../config/database");
 
+//get Users
 exports.getusers = () => {
-  //  const data=  await sql.query(`select * from user`)
-  //  if(data){
-  //      return data;
-
-  //     }return false;
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM user `, (err, val) => {
       if (err) reject(err);
@@ -15,21 +10,17 @@ exports.getusers = () => {
   });
 };
 
+//findUser
 exports.userAuth = async (data) => {
-  //  const data=  await sql.query(`select * from user`)
-  //  if(data){
-  //      return data;
-   
-  //     }return false;
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM user where email='${data.email}'`, (err, val) => {
       if (err) reject(err);
       else resolve(val[0]);
-      
     });
   });
 };
 
+//register
 exports.UserRegister = (data) => {
   return new Promise((resolve, reject) => {
     sql.query(

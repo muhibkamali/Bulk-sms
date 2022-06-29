@@ -41,7 +41,7 @@ exports.UserLogin = async (req, res) => {
     if (correctPassword) {
       user.password = undefined;
       const jsonwebtoken = sign({ correctPassword: user }, "qwe123", {
-        expiresIn: "1h",
+        expiresIn: process.env.EXPIRATION_TIME,
       });
 
       return res.status(200).send({

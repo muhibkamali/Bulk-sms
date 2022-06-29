@@ -1,5 +1,10 @@
 const customerServices = require("../services/customers.services");
 const validationSchema = require("../helper/validation_schema");
+const fs = require("fs");
+const csv = require("fast-csv");
+const path = require("path");
+const __basedir = path.resolve();
+
 exports.getCustomers = async (req, res) => {
   try {
     const body = await customerServices.getCustomers();
@@ -84,6 +89,7 @@ exports.updateCustomers = async (req, res) => {
     });
   }
 };
+
 exports.deleteCustomers = async (req, res) => {
   try {
     const body = req.body;
@@ -101,6 +107,51 @@ exports.deleteCustomers = async (req, res) => {
       success: false,
       msg: "SomeThing went wrong",
       data: [],
+    });
+  }
+};
+
+exports.upload = async (req, res) => {
+  try {
+    if (req.file == undefined) {
+      return res.status(400).send("Please upload a CSV file!");
+    }
+    let users = [];
+    let path =
+      __basedir + "/resources/static/assets/uploads/" + req.file.filename;
+    fs.createReadStream(path)
+      .pipe(csv.parse({ headers: true }))
+      .on("error", (error) => {
+        throw error.message;
+      })
+      .on("data", (row) => {
+        users.push(row);
+      })
+      .on("end", () => {
+        const data = users.map(
+          (item) =>
+            `(${item.first_name}, ${item.last_name},${item.phone}, ${item.status},)`
+        );
+        const BulkData = await customerServices.AddBulkCustomers(data)
+        console.log(BulkData)
+        // User.bulkCreate(users)
+        //   .then(() => {
+        //     res.status(200).send({
+        //       message:
+        //         "Uploaded the file successfully: " + req.file.originalname,
+        //     });
+        //   })
+        //   .catch((error) => {
+        //     res.status(500).send({
+        //       message: "Fail to import data into database!",
+        //       error: error.message,
+        //     });
+        //   });
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      message: "Could not upload the file: " + req.file.originalname,
     });
   }
 };

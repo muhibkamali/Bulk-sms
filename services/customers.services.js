@@ -53,3 +53,16 @@ exports.DeleteCustomer = (data) => {
     });
   });
 };
+
+//Add bulk customers
+exports.AddBulkCustomers = (data) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `INSERT INTO customers (first_name, last_name, phone, status) values ${data}' `,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+};
