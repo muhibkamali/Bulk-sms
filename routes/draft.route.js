@@ -6,6 +6,7 @@ var router = function () {
   Router.get("/list", checkToken, draftController.getDrafts);
   Router.post("/add", checkToken, draftController.addDraft);
   Router.post("/delete/:id", checkToken, draftController.deleteDraft);
+  Router.put("/update", checkToken, draftController.updateDraft);
   return Router;
 };
 

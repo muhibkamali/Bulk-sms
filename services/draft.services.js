@@ -29,6 +29,7 @@ exports.DeleteDraft = (draft_id) => {
     });
   });
 };
+
 exports.findById = function (table, id) {
   return new Promise(function (resolve, reject) {
     try {
@@ -44,5 +45,17 @@ exports.findById = function (table, id) {
     } catch (error) {
       reject(error);
     }
+  });
+};
+
+exports.UpdateDraft = (data) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `UPDATE draft SET number='${data.number}' ,  message='${data.message}' WHERE id=${data.id}`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
   });
 };

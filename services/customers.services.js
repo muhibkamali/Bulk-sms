@@ -35,7 +35,7 @@ exports.AddCustomer = (data) => {
 exports.UpdateCustomer = (data) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      `UPDATE customers SET first_name='${data.first_name}' ,  last_name='${data.last_name}' , phone='${data.phone}' WHERE id='${data.id})'`,
+      `UPDATE customers SET first_name='${data.first_name}' ,  last_name='${data.last_name}' , phone='${data.phone}' WHERE id=${data.id}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
@@ -56,13 +56,13 @@ exports.DeleteCustomer = (data) => {
 
 //Add bulk customers
 exports.AddBulkCustomers = (data) => {
+  console.log(data)
+  var sqlQuery = "INSERT INTO customers (first_name, last_name, phone, status) VALUES ?";
   return new Promise((resolve, reject) => {
-    sql.query(
-      `INSERT INTO customers (first_name, last_name, phone, status) values ${data}' `,
-      (err, val) => {
-        if (err) reject(err);
-        else resolve(val);
-      }
+    sql.query(sqlQuery, [data], (err, val) => {
+      if (err) reject(err);
+      else resolve(val);
+    }
     );
   });
 };

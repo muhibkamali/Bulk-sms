@@ -48,9 +48,10 @@ exports.ChanagePassword = (data) => {
 
 //update profile
 exports.UpdateProfile = (data) => {
+  console.log(data)
   return new Promise((resolve, reject) => {
     sql.query(
-      `UPDATE user SET first_name='${data.first_name}' ,last_name='${data.last_name}',email='${data.email}',phone='${data.phone}' , profile_image='${data.image}' WHERE id='${data.id})'`,
+      `UPDATE user SET first_name='${data.first_name}' ,last_name='${data.last_name}',phone='${data.phone}' , profile_image='${data.image}' WHERE id=${data.id}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);

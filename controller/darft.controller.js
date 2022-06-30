@@ -20,15 +20,6 @@ exports.getDrafts = async (req, res) => {
 exports.addDraft = async (req, res) => {
   try {
     const body = req.body;
-
-    // const { error } =validationSchema.addCustomerValidation(req.body);
-
-    // if (error) {
-    //     return res
-    //       .status(200)
-    //       .send({ status: 200, success: false, msg: error.details[0].message });
-    //   }
-
     const data = await draftServices.AddDraft(body);
     if (data) {
       return res.status(200).send({
@@ -59,8 +50,38 @@ exports.deleteDraft = async (req, res) => {
       });
     } else {
       return res
-      .status(404)
-      .send({ status: 404, success: false, msg: "No data found" });
+        .status(404)
+        .send({ status: 404, success: false, msg: "No data found" });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      success: false,
+      msg: "SomeThing went wrong",
+      data: [],
+    });
+  }
+};
+
+exports.updateDraft = async (req, res) => {
+  try {
+    console.log(typeof req.body.number)
+    const checkAuth = await draftServices.findById("draft", req.body.id);
+    if (checkAuth) {
+      const data = await draftServices.UpdateDraft(req.body);
+      if (data) {
+        return res.status(200).send({
+          success: true,
+          msg: "Draft data Successfully Updated.",
+          data: data,
+        });
+      }
+    } else {
+      return res.status(404).json({
+        success: false,
+        msg: "Draft not found",
+        data: [],
+      });
     }
   } catch (e) {
     console.log(e);

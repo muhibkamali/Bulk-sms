@@ -1,4 +1,5 @@
 const customerServices = require("../services/customers.services");
+const draftServices = require("../services/draft.services");
 const validationSchema = require("../helper/validation_schema");
 const fs = require("fs");
 const csv = require("fast-csv");
@@ -64,24 +65,31 @@ exports.addCustomers = async (req, res) => {
 exports.updateCustomers = async (req, res) => {
   try {
     const body = req.body;
-
-    // const { error } =validationSchema.addCustomerValidation(req.body);
-
-    // if (error) {
-    //     return res
-    //       .status(200)
-    //       .send({ status: 200, success: false, msg: error.details[0].message });
-    //   }
-    const data = await customerServices.UpdateCustomer(body);
-    if (data) {
-      return res.status(200).send({
-        success: true,
-        msg: "Customer Successfully Updated.",
-        data: data,
+    const { error } = validationSchema.addCustomerValidation(req.body);
+    if (error) {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: error.details[0].message });
+    }
+    const checkAuth = await draftServices.findById("customers", body.id);
+    console.log(checkAuth)
+    if (checkAuth) {
+      const data = await customerServices.UpdateCustomer(body);
+      if (data) {
+        return res.status(200).send({
+          success: true,
+          msg: "Customer Successfully Updated.",
+          data: data,
+        });
+      }
+    } else {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+        data: [],
       });
     }
   } catch (e) {
-    console.log(e);
     return res.status(500).json({
       success: false,
       msg: "SomeThing went wrong",
@@ -130,23 +138,21 @@ exports.upload = async (req, res) => {
       .on("end", () => {
         const data = users.map(
           (item) =>
-            `(${item.first_name}, ${item.last_name},${item.phone}, ${item.status},)`
+            [item.first_name, item.last_name, item.phone, Number(item.status)]
         );
-        const BulkData = await customerServices.AddBulkCustomers(data)
-        console.log(BulkData)
-        // User.bulkCreate(users)
-        //   .then(() => {
-        //     res.status(200).send({
-        //       message:
-        //         "Uploaded the file successfully: " + req.file.originalname,
-        //     });
-        //   })
-        //   .catch((error) => {
-        //     res.status(500).send({
-        //       message: "Fail to import data into database!",
-        //       error: error.message,
-        //     });
-        //   });
+        const BulkData = customerServices.AddBulkCustomers(data)
+          .then(() => {
+            res.status(200).send({
+              message:
+                "Uploaded the file successfully: " + req.file.originalname,
+            });
+          })
+          .catch((error) => {
+            res.status(500).send({
+              message: "Fail to import data into database!",
+              error: error.message,
+            });
+          });
       });
   } catch (error) {
     console.log(error);

@@ -72,20 +72,16 @@ exports.UserLogin = async (req, res) => {
 exports.UpdateUserProfile = async (req, res) => {
   try {
     const body = req.body;
-    // console.log(req.file);return false;
     body.image = req.file.filename;
-
     body.id = req.user.correctPassword.id;
-
     const { error } = validationSchema.UserProfileValidation(req.body);
-
     if (error) {
       return res
         .status(200)
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
+    console.log(body, 'CONTROLLER')
     const result = await userServices.UpdateProfile(body);
-
     if (result.affectedRows == 1) {
       res.status(200).send({
         success: true,

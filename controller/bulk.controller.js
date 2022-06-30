@@ -8,7 +8,7 @@ exports.BulkSender = async (req, res) => {
     // return false;
     const twilio = require("twilio")(
       "AC568da8940ab66e0a8c0c73a500bc3618",
-      "4474f844bb6dc153f45356df53e56dc8"
+      "8afaf76423a92f9ce4cb8e3229b23053"
     );
 
     const message = body.message;
@@ -21,17 +21,18 @@ exports.BulkSender = async (req, res) => {
     const service = twilio.notify.services(
       "ISa14bbac8a7b3757443b3235af513a72c"
     );
-
+    console.log(b)
     const bindings = b.map((number) => {
       return JSON.stringify({ binding_type: "sms", address: number });
     });
-
+    console.log(b)
+    // return false
     service.notifications
       .create({
         toBinding: bindings,
         body: message,
       })
-      .then((notification) => {})
+      .then((notification) => { })
       .catch((err) => {
         console.error(err);
       });

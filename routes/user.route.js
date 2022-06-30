@@ -20,7 +20,7 @@ var router = function () {
     checkToken,
     userController.UserChangePassword
   );
-  //Router.post('/update',checkToken,userController.UpdateUserProfile)
+  // Router.put('/update',checkToken,userController.UpdateUserProfile)
   Router.post("/userRegistration", userController.UserRegistration);
   Router.post("/userLogin", userController.UserLogin);
 

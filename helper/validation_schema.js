@@ -2,9 +2,10 @@ const Joi = require("joi");
 
 exports.addCustomerValidation = (data) => {
   const schema = Joi.object({
-    first_name: Joi.string().required(),
-    last_name: Joi.string().required(),
-    phone: Joi.string().required(),
+    id: Joi.number(),
+    first_name: Joi.string().optional(),
+    last_name: Joi.string().optional(),
+    phone: Joi.string().optional(),
   });
   return schema.validate(data);
 };
@@ -22,11 +23,10 @@ exports.UserPasswordValidation = (data) => {
 exports.UserProfileValidation = (data) => {
   const schema = Joi.object({
     id: Joi.number(),
-    first_name: Joi.string().required(),
-    last_name: Joi.string().required(),
-    email: Joi.string().required(),
-    phone: Joi.string().required(),
-    image: Joi.string(),
+    first_name: Joi.string().optional(),
+    last_name: Joi.string().optional(),
+    phone: Joi.string().optional(),
+    image: Joi.string().optional(),
   });
   return schema.validate(data);
 };
