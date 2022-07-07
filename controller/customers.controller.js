@@ -8,10 +8,17 @@ const __basedir = path.resolve();
 
 exports.getCustomers = async (req, res) => {
   try {
-    const body = await customerServices.getCustomers();
+    const page = req.query.page ? req.query.page : 1;
+    const limit = req.query.limit ? req.query.limit : 10;
+    const body = await customerServices.getCustomers(
+      parseInt(limit ? limit : 10),
+      parseInt(limit * (page - 1) ? limit * (page - 1) : 0)
+    );
+    const count = await customerServices.customerCount();
     return res.status(200).send({
       success: true,
       msg: "successfully load Customers",
+      total: Object.values(count[0])[0],
       data: body,
     });
   } catch (e) {
@@ -72,7 +79,7 @@ exports.updateCustomers = async (req, res) => {
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
     const checkAuth = await draftServices.findById("customers", body.id);
-    console.log(checkAuth)
+    console.log(checkAuth);
     if (checkAuth) {
       const data = await customerServices.UpdateCustomer(body);
       if (data) {
@@ -136,11 +143,14 @@ exports.upload = async (req, res) => {
         users.push(row);
       })
       .on("end", () => {
-        const data = users.map(
-          (item) =>
-            [item.first_name, item.last_name, item.phone, Number(item.status)]
-        );
-        const BulkData = customerServices.AddBulkCustomers(data)
+        const data = users.map((item) => [
+          item.first_name,
+          item.last_name,
+          item.phone,
+          Number(item.status),
+        ]);
+        const BulkData = customerServices
+          .AddBulkCustomers(data)
           .then(() => {
             res.status(200).send({
               message:

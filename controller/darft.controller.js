@@ -1,11 +1,19 @@
 const draftServices = require("../services/draft.services");
 const validationSchema = require("../helper/validation_schema");
+
 exports.getDrafts = async (req, res) => {
   try {
-    const body = await draftServices.getDraft();
+    const page = req.query.page ? req.query.page : 1;
+    const limit = req.query.limit ? req.query.limit : 10;
+    const body = await draftServices.getDraft(
+      parseInt(limit ? limit : 10),
+      parseInt(limit * (page - 1) ? limit * (page - 1) : 0)
+    );
+    const count = await draftServices.draftCount();
     return res.status(200).send({
       success: true,
       msg: "successfully load Draft list",
+      total: Object.values(count[0])[0],
       data: body,
     });
   } catch (e) {

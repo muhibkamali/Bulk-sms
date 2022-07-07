@@ -13,8 +13,12 @@ exports.addCustomerValidation = (data) => {
 //validation
 exports.UserPasswordValidation = (data) => {
   const schema = Joi.object({
-    password: Joi.string().required(),
-    confirmPassword: Joi.string().required().valid(Joi.ref("password")),
+    old_password: Joi.string().required(),
+    new_password: Joi.string().required(),
+    confirm_new_password: Joi.string().required(),
+
+    // password: Joi.string().required(),
+    // confirmPassword: Joi.string().required().valid(Joi.ref("password")),
   });
   return schema.validate(data);
 };
@@ -27,6 +31,15 @@ exports.UserProfileValidation = (data) => {
     last_name: Joi.string().optional(),
     phone: Joi.string().optional(),
     image: Joi.string().optional(),
+  });
+  return schema.validate(data);
+};
+
+
+//forgot Password Schema
+exports.forgotPasswordSchema = (data) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
   });
   return schema.validate(data);
 };

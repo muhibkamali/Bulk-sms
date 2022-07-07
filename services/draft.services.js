@@ -1,13 +1,28 @@
 const sql = require("../config/database");
 
-exports.getDraft = () => {
+exports.getDraft = (page, limit) => {
   return new Promise((resolve, reject) => {
-    sql.query(`SELECT * FROM draft `, (err, val) => {
-      if (err) reject(err);
-      else resolve(val);
-    });
+    sql.query(
+      `SELECT * FROM draft order by created_at desc LIMIT ${page} OFFSET ${limit}`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
   });
 };
+
+exports.draftCount = () => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT COUNT(*) FROM draft`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+}
 
 exports.AddDraft = (data) => {
   return new Promise((resolve, reject) => {

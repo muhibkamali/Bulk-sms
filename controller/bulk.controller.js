@@ -3,21 +3,14 @@ const validationSchema = require("../helper/validation_schema");
 exports.BulkSender = async (req, res) => {
   try {
     const body = req.body;
-
-    // console.log(b);
-    // return false;
     const twilio = require("twilio")(
       "AC568da8940ab66e0a8c0c73a500bc3618",
       "8afaf76423a92f9ce4cb8e3229b23053"
     );
-
     const message = body.message;
     let numbers = body.number;
-
     let b = numbers;
-
     b = Array.from(b, Number);
-
     const service = twilio.notify.services(
       "ISa14bbac8a7b3757443b3235af513a72c"
     );

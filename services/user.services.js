@@ -34,10 +34,10 @@ exports.UserRegister = (data) => {
 };
 
 //change password
-exports.ChanagePassword = (data) => {
+exports.ChanagePassword = (password, id) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      `UPDATE user SET password='${data.password}' WHERE id='${data.id})'`,
+      `UPDATE user SET password='${password}' WHERE id=${id}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
@@ -48,13 +48,38 @@ exports.ChanagePassword = (data) => {
 
 //update profile
 exports.UpdateProfile = (data) => {
-  console.log(data)
   return new Promise((resolve, reject) => {
     sql.query(
       `UPDATE user SET first_name='${data.first_name}' ,last_name='${data.last_name}',phone='${data.phone}' , profile_image='${data.image}' WHERE id=${data.id}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
+      }
+    );
+  });
+};
+
+exports.delete = (user_id) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `DELETE FROM forgotpassword WHERE user_id=${user_id}`,
+      (err, _data) => {
+        if (err) reject(err);
+        else resolve(_data);
+      }
+    );
+  });
+};
+
+exports.create = ({ user_id, code }) => {
+  console.log(user_id, code)
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `INSERT INTO forgotpassword ( user_id, code) VALUES (?,?)`,
+      [user_id, code],
+      (err, _data) => {
+        if (err) reject(err);
+        else resolve(_data);
       }
     );
   });

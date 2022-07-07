@@ -1,8 +1,27 @@
 const userServices = require("../services/user.services");
+const draftServices = require("../services/draft.services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const validationSchema = require("../helper/validation_schema");
-const res = require("express/lib/response");
+// const sendEmail = require("emailjs");
+// const nodemailer = require("nodemailer");
+
+// var transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: "oipdummy@gmail.com",
+//     pass: "pakistan12@4",
+//   },
+// });
+// const client = new sendEmail.SMTPClient({
+//   user: "oipdummy@gmail.com",
+//   password: "pakistan12@4",
+//   host: "smtp.gmail.com",
+//   ssl: true,
+// });
+
 exports.UserGet = async (req, res) => {
   try {
     const body = await userServices.getusers();
@@ -30,7 +49,6 @@ exports.UserLogin = async (req, res) => {
       return res.json({
         status: false,
         msg: "Credentials not match ",
-        // data: data,
       });
     }
     delete user.created_at;
@@ -43,7 +61,7 @@ exports.UserLogin = async (req, res) => {
       const jsonwebtoken = sign({ correctPassword: user }, "qwe123", {
         expiresIn: process.env.EXPIRATION_TIME,
       });
-
+      user.profile_image = `uploads/${user.profile_image}`;
       return res.status(200).send({
         success: true,
         msg: "Login successfully",
@@ -71,22 +89,28 @@ exports.UserLogin = async (req, res) => {
 
 exports.UpdateUserProfile = async (req, res) => {
   try {
-    const body = req.body;
-    body.image = req.file.filename;
-    body.id = req.user.correctPassword.id;
     const { error } = validationSchema.UserProfileValidation(req.body);
     if (error) {
       return res
         .status(200)
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
-    console.log(body, 'CONTROLLER')
+
+    const body = req.body;
+    body.image = req.file.filename;
+    body.id = req.user.correctPassword.id;
     const result = await userServices.UpdateProfile(body);
     if (result.affectedRows == 1) {
       res.status(200).send({
         success: true,
         msg: "Profile Successfully Updated",
-        data: body,
+        data: {
+          first_name: body.first_name,
+          last_name: body.last_name,
+          phone: body.phone,
+          profile_image: `uploads/${body.image}`,
+          id: body.id,
+        },
       });
     } else {
       res.status(200).send({
@@ -105,35 +129,58 @@ exports.UpdateUserProfile = async (req, res) => {
   }
 };
 
-//user change password
 exports.UserChangePassword = async (req, res) => {
   try {
+    const userData = req.user;
     const { error } = validationSchema.UserPasswordValidation(req.body);
-
     if (error) {
       return res
         .status(200)
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
-    const body = req.body;
-    const salt = genSaltSync(10);
-    body.password = hashSync(body.password, salt);
-
-    const result = await userServices.ChanagePassword(body);
-    if (result) {
-      return res.status(200).json({
-        success: true,
-        msg: "Password Changed successfully",
-        data: [],
-      });
+    const user = await draftServices.findById(
+      "user",
+      userData.correctPassword.id
+    );
+    if (user) {
+      const comparePassword = await compareSync(
+        req.body.old_password,
+        user.password
+      );
+      if (comparePassword) {
+        if (req.body.new_password !== req.body.confirm_new_password) {
+          return res.status(200).send({
+            status: 200,
+            success: false,
+            msg: "Password and confirm password not matched",
+          });
+        } else {
+          const salt = genSaltSync(10);
+          const hashPassword = await hashSync(req.body.new_password, salt);
+          await userServices.ChanagePassword(
+            hashPassword,
+            userData.correctPassword.id
+          );
+          return res.status(200).send({
+            status: 200,
+            success: true,
+            msg: "Password changed successfully",
+          });
+        }
+      } else {
+        return res.status(200).send({
+          status: 200,
+          success: false,
+          msg: "Old password is not correct",
+        });
+      }
+    } else {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: "User not found" });
     }
-  } catch (e) {
-    console.log(e);
-    return res.status(500).json({
-      success: false,
-      msg: "SomeThing went wrong",
-      data: [],
-    });
+  } catch (error) {
+    res.status(500).send({ status: 500, success: false, msg: error.message });
   }
 };
 
@@ -155,5 +202,78 @@ exports.UserRegistration = async (req, res) => {
       msg: "SomeThing went wrong",
       data: [],
     });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { error } = validationSchema.forgotPasswordSchema(req.body);
+    if (error) {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: error.details[0].message });
+    }
+    console.log(req.body);
+    const user = await userServices.userAuth(req.body);
+    console.log(user);
+    // return true
+    if (user) {
+      await userServices.delete(user.id);
+      const code = Math.floor(Math.random() * 9000) + 1000;
+      // console.log(user.id , code)
+      const data = await userServices.create({
+        user_id: user.id,
+        code: code,
+      });
+      console.log(user.id, req.body.email);
+      if (data) {
+        try {
+          // const Send = await transporter.sendMail({
+          //   from: "oipdummy@gmail.com",
+          //   to: req.body.email,
+          //   subject: "Reset Password",
+          //   html: `<h1>Reset Password</h1>
+          //   <h3>Your Reset Password code is ${code}</h3>
+          //   `,
+          // });
+          // const message = await client.sendAsync({
+          //   text: "Forgot Password",
+          //   from: "oipdummy@gmail.com",
+          //   to: req.body.email,
+          //   // cc: "else <else@your-email.com>",
+          //   subject: "Reset Password",
+          // });
+          // console.log(message);
+        } catch (error) {
+          res
+            .status(404)
+            .send({ status: 404, success: false, msg: error.message });
+        }
+        return res.status(200).send({
+          status: 200,
+          success: true,
+          msg: "Code is sent to your email",
+        });
+      } else {
+        return res.status(200).send({
+          status: 200,
+          success: false,
+          msg: "Something went wrong",
+        });
+      }
+    } else {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ status: 500, success: false, msg: error.message });
+  }
+};
+
+exports.verifyCode = async (req, res) => {
+  try {
+  } catch (error) {
+    res.status(500).send({ status: 500, success: false, msg: error.message });
   }
 };

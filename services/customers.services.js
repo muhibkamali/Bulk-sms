@@ -1,15 +1,30 @@
 const sql = require("../config/database");
 
 //get customer list
-exports.getCustomers = () => {
+exports.getCustomers = (page, limit) => {
   return new Promise((resolve, reject) => {
-    sql.query(`SELECT * FROM customers `, (err, val) => {
-      if (err) reject(err);
-      else resolve(val);
-    });
+    sql.query(
+      `SELECT * FROM customers order by created_at desc LIMIT ${page} OFFSET ${limit}`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
   });
 };
-// check phone is already exist or not
+
+
+exports.customerCount = () => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT COUNT(*) FROM customers`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+}
 exports.checkPhoneNo = (data) => {
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM customers where phone='${data}' `, (err, val) => {
@@ -56,13 +71,13 @@ exports.DeleteCustomer = (data) => {
 
 //Add bulk customers
 exports.AddBulkCustomers = (data) => {
-  console.log(data)
-  var sqlQuery = "INSERT INTO customers (first_name, last_name, phone, status) VALUES ?";
+  console.log(data);
+  var sqlQuery =
+    "INSERT INTO customers (first_name, last_name, phone, status) VALUES ?";
   return new Promise((resolve, reject) => {
     sql.query(sqlQuery, [data], (err, val) => {
       if (err) reject(err);
       else resolve(val);
-    }
-    );
+    });
   });
 };

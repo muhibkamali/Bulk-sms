@@ -23,7 +23,7 @@ var router = function () {
   // Router.put('/update',checkToken,userController.UpdateUserProfile)
   Router.post("/userRegistration", userController.UserRegistration);
   Router.post("/userLogin", userController.UserLogin);
-
+  Router.post("/forgotpassword", userController.forgotPassword);
   Router.post(
     "/update",
     upload.single("image"),
