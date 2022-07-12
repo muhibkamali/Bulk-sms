@@ -1,3 +1,4 @@
+const sql = require("../config/database");
 const userServices = require("../services/user.services");
 const draftServices = require("../services/draft.services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
@@ -213,19 +214,14 @@ exports.forgotPassword = async (req, res) => {
         .status(200)
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
-    console.log(req.body);
     const user = await userServices.userAuth(req.body);
-    console.log(user);
-    // return true
     if (user) {
       await userServices.delete(user.id);
       const code = Math.floor(Math.random() * 9000) + 1000;
-      // console.log(user.id , code)
       const data = await userServices.create({
         user_id: user.id,
         code: code,
       });
-      console.log(user.id, req.body.email);
       if (data) {
         try {
           // const Send = await transporter.sendMail({
@@ -240,7 +236,7 @@ exports.forgotPassword = async (req, res) => {
           //   text: "Forgot Password",
           //   from: "oipdummy@gmail.com",
           //   to: req.body.email,
-          //   // cc: "else <else@your-email.com>",
+          // cc: "else <else@your-email.com>",
           //   subject: "Reset Password",
           // });
           // console.log(message);
@@ -271,8 +267,80 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-exports.verifyCode = async (req, res) => {
+exports.forgotPasswordVerify = async (req, res) => {
   try {
+    sql.query(
+      `select * from forgotpassword where code=${req.body.code}`,
+      (err, data) => {
+        if (err) {
+          return res
+            .status(200)
+            .send({ status: 200, success: false, msg: err.message });
+        }
+        if (data.length == 0)
+          return res.status(200).send({
+            status: 200,
+            success: false,
+            msg: "reset token is expired",
+          });
+
+        res.status(200).send({
+          status: 200,
+          success: true,
+          msg: "Verify Successfully",
+          data: data[0],
+        });
+        sql.query(
+          `DELETE FROM forgotpassword WHERE user_id IN (${data[0].user_id})`
+        );
+      }
+    );
+  } catch (error) {
+    res.status(500).send({ status: 500, success: false, msg: error.message });
+  }
+  // try {
+  //   const user = await userServices.userAuth(req.body);
+  //   const data = await userServices.forgotPassVerify(user.id, req.body.code);
+  //   console.log(data);
+  // } catch (error) {
+  //   res.status(500).send({ status: 500, success: false, msg: error.message });
+  // }
+};
+
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { error } = validationSchema.resetPasswordSchema(req.body);
+    if (error) {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: error.details[0].message });
+    }
+    const user = await await userServices.userAuth(req.body);
+    if (user) {
+      if (req.body.user_password !== req.body.confirm_user_password) {
+        return res.status(200).send({
+          status: 200,
+          success: false,
+          msg: "Password and confirm password not matched",
+        });
+      } else {
+        const hashPassword = await bcrypt.hash(req.body.user_password, 10);
+        await authService.updatePassword(
+          hashPassword,
+          req.body.user_id
+        );
+        return res.status(200).send({
+          status: 200,
+          success: true,
+          msg: "Password reset successfully",
+        });
+      }
+    } else {
+      return res
+        .status(200)
+        .send({ status: 200, success: false, msg: "User not found" });
+    }
   } catch (error) {
     res.status(500).send({ status: 500, success: false, msg: error.message });
   }

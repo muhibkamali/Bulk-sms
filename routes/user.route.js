@@ -24,6 +24,7 @@ var router = function () {
   Router.post("/userRegistration", userController.UserRegistration);
   Router.post("/userLogin", userController.UserLogin);
   Router.post("/forgotpassword", userController.forgotPassword);
+  Router.post("/forgotpassword/verify", userController.forgotPasswordVerify);
   Router.post(
     "/update",
     upload.single("image"),

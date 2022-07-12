@@ -72,7 +72,7 @@ exports.delete = (user_id) => {
 };
 
 exports.create = ({ user_id, code }) => {
-  console.log(user_id, code)
+  console.log(user_id, code);
   return new Promise((resolve, reject) => {
     sql.query(
       `INSERT INTO forgotpassword ( user_id, code) VALUES (?,?)`,
@@ -80,6 +80,19 @@ exports.create = ({ user_id, code }) => {
       (err, _data) => {
         if (err) reject(err);
         else resolve(_data);
+      }
+    );
+  });
+};
+
+exports.forgotPassVerify = (id, code) => {
+  console.log(id, code)
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `select * from forgotpassword where user_id = ${id} AND code=${code}`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
       }
     );
   });

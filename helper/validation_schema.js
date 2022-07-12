@@ -43,3 +43,12 @@ exports.forgotPasswordSchema = (data) => {
   });
   return schema.validate(data);
 };
+
+exports.resetPasswordSchema = (data) => {
+  const schema = Joi.object({
+    email: Joi.email().required(),
+    user_password: Joi.string().required(),
+    confirm_user_password: Joi.string().required(),
+  });
+  return schema.validate(data);
+};
