@@ -40,6 +40,16 @@ exports.UserGet = async (req, res) => {
   }
 };
 
+// exports.getFilteredData = async (req, res) => {
+//   try {
+//     const body = await userServices.getFilterData(req.query.data);
+//     console.log(body);
+//     return true
+//   } catch (error) {
+//     res.status(404).send({ status: 404, success: false, msg: error.message });
+//   }
+// };
+
 exports.UserLogin = async (req, res) => {
   try {
     const body = req.body;
@@ -307,7 +317,6 @@ exports.forgotPasswordVerify = async (req, res) => {
   // }
 };
 
-
 exports.resetPassword = async (req, res) => {
   try {
     const { error } = validationSchema.resetPasswordSchema(req.body);
@@ -318,6 +327,7 @@ exports.resetPassword = async (req, res) => {
     }
     const user = await await userServices.userAuth(req.body);
     if (user) {
+      console.log(user);
       if (req.body.user_password !== req.body.confirm_user_password) {
         return res.status(200).send({
           status: 200,
@@ -325,11 +335,9 @@ exports.resetPassword = async (req, res) => {
           msg: "Password and confirm password not matched",
         });
       } else {
-        const hashPassword = await bcrypt.hash(req.body.user_password, 10);
-        await authService.updatePassword(
-          hashPassword,
-          req.body.user_id
-        );
+        const salt = genSaltSync(10);
+        const hashPassword = await hashSync(req.body.user_password, salt);
+        await userServices.updatePassword(hashPassword, user.id);
         return res.status(200).send({
           status: 200,
           success: true,

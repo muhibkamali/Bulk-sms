@@ -13,6 +13,17 @@ exports.getCustomers = (page, limit) => {
   });
 };
 
+exports.getFilterData = (data) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT * FROM customers WHERE first_name LIKE '%${data}%' OR last_name LIKE '%${data}%'`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+};
 
 exports.customerCount = () => {
   return new Promise((resolve, reject) => {

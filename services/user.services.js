@@ -10,6 +10,18 @@ exports.getusers = () => {
   });
 };
 
+// exports.getFilterData = (data) => {
+//   return new Promise((resolve, reject) => {
+//     sql.query(
+//       `SELECT * FROM user WHERE first_name LIKE '%${data}%' OR last_name LIKE '%${data}%'`,
+//       (err, val) => {
+//         if (err) reject(err);
+//         else resolve(val);
+//       }
+//     );
+//   });
+// };
+
 //findUser
 exports.userAuth = async (data) => {
   return new Promise((resolve, reject) => {
@@ -86,13 +98,26 @@ exports.create = ({ user_id, code }) => {
 };
 
 exports.forgotPassVerify = (id, code) => {
-  console.log(id, code)
+  console.log(id, code);
   return new Promise((resolve, reject) => {
     sql.query(
       `select * from forgotpassword where user_id = ${id} AND code=${code}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
+      }
+    );
+  });
+};
+
+exports.updatePassword = (password, user_id) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `UPDATE user SET password=? WHERE id=?`,
+      [password, user_id],
+      (err, _data) => {
+        if (err) reject(err);
+        else resolve(_data);
       }
     );
   });

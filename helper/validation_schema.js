@@ -46,7 +46,7 @@ exports.forgotPasswordSchema = (data) => {
 
 exports.resetPasswordSchema = (data) => {
   const schema = Joi.object({
-    email: Joi.email().required(),
+    email: Joi.string().email().required(),
     user_password: Joi.string().required(),
     confirm_user_password: Joi.string().required(),
   });

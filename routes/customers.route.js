@@ -5,6 +5,7 @@ const upload = require("../middlewares/upload");
 
 var router = function () {
   Router.get("/list", checkToken, customerController.getCustomers);
+  Router.get("/filter", checkToken, customerController.getFilteredCustomers);
   Router.post("/add", checkToken, customerController.addCustomers);
   Router.delete("/delete", checkToken, customerController.deleteCustomers);
   Router.put("/update", checkToken, customerController.updateCustomers);

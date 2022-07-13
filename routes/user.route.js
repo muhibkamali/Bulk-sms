@@ -15,6 +15,7 @@ var upload = multer({ storage: storage });
 
 var router = function () {
   Router.get("/userList", checkToken, userController.UserGet);
+  // Router.get("/filter", checkToken, userController.getFilteredData);
   Router.post(
     "/change-password",
     checkToken,
@@ -25,6 +26,7 @@ var router = function () {
   Router.post("/userLogin", userController.UserLogin);
   Router.post("/forgotpassword", userController.forgotPassword);
   Router.post("/forgotpassword/verify", userController.forgotPasswordVerify);
+  Router.post("/resetPassword", userController.resetPassword);
   Router.post(
     "/update",
     upload.single("image"),

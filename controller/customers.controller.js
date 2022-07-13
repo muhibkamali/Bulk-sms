@@ -30,18 +30,34 @@ exports.getCustomers = async (req, res) => {
   }
 };
 
+exports.getFilteredCustomers = async (req, res) => {
+  try {
+    const body = await customerServices.getFilterData(req.query.data);
+    if (body.length > 0) {
+      return res.status(200).send({
+        success: true,
+        msg: "successfully load Customers",
+        data: body,
+      });
+    } else {
+      return res
+        .status(404)
+        .send({ status: 404, success: false, msg: "Data not found." });
+    }
+  } catch (error) {
+    res.status(404).send({ status: 404, success: false, msg: error.message });
+  }
+};
+
 exports.addCustomers = async (req, res) => {
   try {
     const body = req.body;
-
     const { error } = validationSchema.addCustomerValidation(req.body);
-
     if (error) {
       return res
         .status(200)
         .send({ status: 200, success: false, msg: error.details[0].message });
     }
-
     const phoneValidate = await customerServices.checkPhoneNo(body.phone);
     let phone = phoneValidate.length;
     if (phone != 0) {
