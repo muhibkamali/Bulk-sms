@@ -13,10 +13,23 @@ exports.getCustomers = (page, limit) => {
   });
 };
 
-exports.getFilterData = (data) => {
+exports.getFilterData = (data, page, limit) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      `SELECT * FROM customers WHERE first_name LIKE '%${data}%' OR last_name LIKE '%${data}%'`,
+      `SELECT * FROM customers WHERE first_name LIKE '%${data}%' OR last_name LIKE '%${data}%' order by created_at desc LIMIT ${page} OFFSET ${limit}
+      `,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+};
+
+exports.getFilterDataCount = (data) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT COUNT(*) FROM customers WHERE first_name LIKE '%${data}%' OR last_name LIKE '%${data}%'`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
@@ -27,15 +40,12 @@ exports.getFilterData = (data) => {
 
 exports.customerCount = () => {
   return new Promise((resolve, reject) => {
-    sql.query(
-      `SELECT COUNT(*) FROM customers`,
-      (err, val) => {
-        if (err) reject(err);
-        else resolve(val);
-      }
-    );
+    sql.query(`SELECT COUNT(*) FROM customers`, (err, val) => {
+      if (err) reject(err);
+      else resolve(val);
+    });
   });
-}
+};
 exports.checkPhoneNo = (data) => {
   return new Promise((resolve, reject) => {
     sql.query(`SELECT * FROM customers where phone='${data}' `, (err, val) => {

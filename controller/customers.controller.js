@@ -32,11 +32,19 @@ exports.getCustomers = async (req, res) => {
 
 exports.getFilteredCustomers = async (req, res) => {
   try {
-    const body = await customerServices.getFilterData(req.query.data);
+    const page = req.query.page ? req.query.page : 1;
+    const limit = req.query.limit ? req.query.limit : 10;
+    const body = await customerServices.getFilterData(
+      req.query.data,
+      parseInt(limit ? limit : 10),
+      parseInt(limit * (page - 1) ? limit * (page - 1) : 0)
+    );
+    const count = await customerServices.getFilterDataCount(req.query.data);
     if (body.length > 0) {
       return res.status(200).send({
         success: true,
         msg: "successfully load Customers",
+        total: Object.values(count[0])[0],
         data: body,
       });
     } else {

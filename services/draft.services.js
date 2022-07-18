@@ -12,17 +12,39 @@ exports.getDraft = (page, limit) => {
   });
 };
 
-exports.draftCount = () => {
+exports.getFilterData = (data, page, limit) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      `SELECT COUNT(*) FROM draft`,
+      `SELECT * FROM draft WHERE number LIKE '%${data}%' order by created_at desc LIMIT ${page} OFFSET ${limit}`,
       (err, val) => {
         if (err) reject(err);
         else resolve(val);
       }
     );
   });
-}
+};
+
+exports.getFilterDataCount = (data) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT COUNT(*) FROM draft WHERE number LIKE '%${data}%'`,
+      (err, val) => {
+        if (err) reject(err);
+        else resolve(val);
+      }
+    );
+  });
+};
+
+
+exports.draftCount = () => {
+  return new Promise((resolve, reject) => {
+    sql.query(`SELECT COUNT(*) FROM draft`, (err, val) => {
+      if (err) reject(err);
+      else resolve(val);
+    });
+  });
+};
 
 exports.AddDraft = (data) => {
   return new Promise((resolve, reject) => {

@@ -23,6 +23,16 @@ const validationSchema = require("../helper/validation_schema");
 //   ssl: true,
 // });
 
+// exports.getFilteredData = async (req, res) => {
+//   try {
+//     const body = await userServices.getFilterData(req.query.data);
+//     console.log(body);
+//     return true
+//   } catch (error) {
+//     res.status(404).send({ status: 404, success: false, msg: error.message });
+//   }
+// };
+
 exports.UserGet = async (req, res) => {
   try {
     const body = await userServices.getusers();
@@ -40,16 +50,6 @@ exports.UserGet = async (req, res) => {
   }
 };
 
-// exports.getFilteredData = async (req, res) => {
-//   try {
-//     const body = await userServices.getFilterData(req.query.data);
-//     console.log(body);
-//     return true
-//   } catch (error) {
-//     res.status(404).send({ status: 404, success: false, msg: error.message });
-//   }
-// };
-
 exports.UserLogin = async (req, res) => {
   try {
     const body = req.body;
@@ -59,7 +59,7 @@ exports.UserLogin = async (req, res) => {
     if (!user) {
       return res.json({
         status: false,
-        msg: "Credentials not match ",
+        msg: "User not found.",
       });
     }
     delete user.created_at;
@@ -85,6 +85,7 @@ exports.UserLogin = async (req, res) => {
       return res.status(200).json({
         success: false,
         msg: "Email and password not match",
+        msg: "Credentials not matched",
         data: [],
       });
     }
